@@ -82,7 +82,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
             if len(years) == 2 {
                 startYear, _ = strconv.Atoi(years[0])
                 endYear, _ = strconv.Atoi(years[1])
-                //Adjust year order if user passes largest value first
+                // Adjust year order if user passes largest value first
                 if startYear > endYear {
                     startYear = endYear
                     endYear =  startYear
@@ -91,7 +91,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
             }
         }
     } else if strings.HasPrefix(yearParam, "single") {
-        //If is a single year set operator
+        // If is a single year set operator
         parts := strings.Fields(strings.TrimPrefix(yearParam, "single"))
         if len(parts) == 2 {
             operator = parts[0]

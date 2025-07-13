@@ -6,7 +6,7 @@ import re
 import requests
 import math
 
-#function to print help comand
+# Function to print help comand
 def print_help():
     print('For Search books use: \'"book name"\'')
     print('For Search books with filter by year [<,>] use: \'"book name" year>yyyy\'')
@@ -16,7 +16,7 @@ def print_help():
     print('For Search books, separate them into pages and change the number of books per page [pageSize] use: \'"book name" page=2 pageSize=20\'')
     print('For Search books and limit the number of books returned [limit] use: \'"book name" limit=5\'')
 
-#function to print book list
+# Function to print book list
 def print_book_list(bookList, start_index=1):
     for i, info in enumerate(bookList, start=start_index):
         title = info.get("title")
@@ -45,22 +45,22 @@ def print_book_list(bookList, start_index=1):
 # Clear terminal screen when running the runner
 os.system("cls" if os.name == "nt" else "clear")
 
-#handling user input errors
+# Handling user input errors
 if len(sys.argv) < 2:
     print('Error: Invalid entry, please follow the examples below:')
     print_help()
     sys.exit(1)
 
-#print a list of comands if -h or --help is sent
+# Print a list of comands if -h or --help is sent
 if sys.argv[1] in ("--help", "-h"):
     print_help()
     sys.exit(0)
 
-#get inputs
+# Get user inputs
 args = sys.argv[1:]
 userInput = " ".join(args)
 
-#get book name
+# Get book name
 titleMatch = re.search(r'"([^"]+)"', userInput)
 
 if titleMatch:
@@ -70,7 +70,7 @@ else:
     print_help()
     sys.exit(1)
 
-#verify and set year filter if user want to use
+# Verify and set year filter if user want to use
 operator=""
 yearFilter=""
 
@@ -98,27 +98,35 @@ elif singleMatch:
         sys.exit(1)
     yearFilter = f"single {operator} {year}"
 
-#verify and set pagination if user want to use
+
 page = 1
 paginated = False
 pageSize = 10
 
-pageMatch = re.search(r'page\s*=\s*(\d+)', userInput, re.IGNORECASE)
+# Verify and set pagination if user want to use
+pageMatch = re.search(r'page\s*=\s*(-?\d+)', userInput, re.IGNORECASE)
 if pageMatch:
     page = int(pageMatch.group(1))
+    if page <= 0:
+        print("Error: Page number must be a positive integer.")
+        sys.exit(1)
     paginated = True
 
-pageSizeMatch = re.search(r'pagesize\s*=\s*(\d+)', userInput, re.IGNORECASE)
+# If user want to use pagination, verify page size
+pageSizeMatch = re.search(r'pagesize\s*=\s*(-?\d+)', userInput, re.IGNORECASE)
 if pageSizeMatch:
     pageSize = int(pageSizeMatch.group(1))
+    if pageSize <= 0:
+        print("Error: Page size must be a positive integer.")
+        sys.exit(1)
 
-#verify and set limit if user want to use
+# Verify and set limit if user want to use
 limitMatch = re.search(r'limit\s*=\s*(\d+)', userInput, re.IGNORECASE)
 limit = None
 if limitMatch:
     limit = int(limitMatch.group(1))
 
-#verify and set order if user want to use
+# Verify and set order if user want to use
 order=""
 decrescent = "dec" in userInput.lower()
 alphaOrder = "alph" in userInput.lower()
@@ -129,13 +137,13 @@ if decrescent:
 if alphaOrder:
     order = "alph"
 
-#set request url to go api
+# Set request url to go api
 if paginated:
     url = f"http://api:3000/search?q={bookName}&year={yearFilter}&order={order}&page={page}&pageSize={pageSize}&limit={limit}"
 else:
     url = f"http://api:3000/search?q={bookName}&year={yearFilter}&order={order}&limit={limit}"
 
-#set message to correspondent filter
+# Set message to correspondent filter
 textFilter=""
 if rangeMatch:
     textFilter = f" - Published between {startYear} and {endYear}"
@@ -151,7 +159,7 @@ elif singleMatch:
             textFilter=""
 
 try:
-    #get go api response and set total and books
+    # Get go api response and set total and books
     response = requests.get(url)
     response.raise_for_status()
     result = response.json()
@@ -159,16 +167,16 @@ try:
     total = result.get("total", 0)
     bookList = result["books"]
        
-    #error message if no book found
+    # Error message if no book found
     if not bookList:
         print(f"No books found with the name {bookName}")
     else:
         
-        #if user want pagination
+        # If user want pagination
         if paginated:
             totalPages = math.ceil(total / pageSize)
 
-            #message if the user wants to access a page that doesn't exist
+            # Message if the user wants to access a page that doesn't exist
             if page > totalPages:
                 print(f"Page {page} does not exist. There are only {totalPages} pages available.\n")
                 sys.exit(1)
@@ -193,6 +201,6 @@ try:
             print(f"\n{len(bookList)} Books found for: {bookName}{textFilter}\n")
             print_book_list(bookList)
 
-#error handling
+# Error handling
 except requests.RequestException as e:
     print("Something went wrong, the requested book could not be found.")
