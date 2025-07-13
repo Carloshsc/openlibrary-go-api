@@ -4,7 +4,20 @@
 
 This project is a book search service powered by the OpenLibrary API. It returns a list of books containing the title, author(s), publication year, and available languages. The backend is built in Go and communicates with the external API, while a Python-based runner handles user interaction. Both components are fully containerized using Docker.
 
-
+## Simple Flow Chart
+```mermaid
+flowchart LR
+    A["User"] --Input--> B["Python Runner"]
+    B --Book/Filter--> C["Go API"]
+    C --Book Request--> D["OpenLibrary API"]
+    C --Book List--> B
+    B --Show List--> A
+    D --Book Response--> C
+subgraph Docker
+        B
+        C
+    end
+```
 ## Instructions
 
 This project uses Docker for containerization, so it’s necessary to build the required images before running anything.
