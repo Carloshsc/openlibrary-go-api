@@ -22,6 +22,10 @@ subgraph Docker API
 ```
 ## Instructions
 
+### Run with Docker
+
+To run using Docker use branch `main`.
+
 This project uses Docker for containerization, so it’s necessary to build the required images before running anything.
 
 To build the images, run the following commands:
@@ -39,6 +43,39 @@ First, start the API container by running: `docker compose up api`
 Then run the Runner container with the desired book: `docker compose run --rm runner '"The Epic of Gilgamesh"'`
 
 Make sure that the API container is up before executing the runner, as the runner depends on it to retrieve data from the OpenLibrary API and format the output.
+
+### Run with Kind
+
+To run using Kind use branch `docker-kind-v1`.
+
+In this branch it was tested how to run Kind for local Kubernetes cluster management with Docker.
+
+To run the application using Kind follow the steps below:
+
+Go to the `openlibrary-go-api` folder and run:
+`kind create cluster --name book-cluster`
+
+Then, in the same folder `openlibrary-go-api` build the two application:
+
+`docker build -t book-api:latest ./api`
+
+`docker build -t book-runner:latest ./runner`
+
+Now you must load the images into the cluster:
+
+`kind load docker-image book-api:latest --name book-cluster`
+
+`kind load docker-image book-runner:latest --name book-cluster`
+
+Apply the kubernetes manifest for the Go API: `kubectl apply -f k8s/book-api.yaml`
+
+To confirm that the API is running, you can follow the logs: `kubectl logs -l app=book-api -f`
+
+Make sure the runner script is executable: `chmod +x run-runner.sh`
+
+Then run the script with the desired book: `./run-runner.sh  '"The Epic of Gilgamesh"'`
+
+## Information
 
 It's important to note that when running the runner command, the entire input must be enclosed in single quotes ('), and the book title itself must be inside double quotes ("). This formatting is required to correctly handle special characters such as <, >, and : without causing issues in the terminal.
 
