@@ -139,9 +139,9 @@ if alphaOrder:
 
 # Set request url to go api
 if paginated:
-    url = f"http://api:3000/search?q={bookName}&year={yearFilter}&order={order}&page={page}&pageSize={pageSize}&limit={limit}"
+    url = f"http://book-api:3000/search?q={bookName}&year={yearFilter}&order={order}&page={page}&pageSize={pageSize}&limit={limit}"
 else:
-    url = f"http://api:3000/search?q={bookName}&year={yearFilter}&order={order}&limit={limit}"
+    url = f"http://book-api:3000/search?q={bookName}&year={yearFilter}&order={order}&limit={limit}"
 
 # Set message to correspondent filter
 textFilter=""
